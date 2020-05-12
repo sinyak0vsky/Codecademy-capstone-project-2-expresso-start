@@ -16,9 +16,11 @@ app.use(bodyParser.json());
 app.use('/api', apiRouter);
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error(err);
   res.status(500).send({message: 'Server ERROR'});
 });
 
 
 app.listen(PORT, () => console.log(`Server started on PORT: ${PORT}`));
+
+module.exports = app;
