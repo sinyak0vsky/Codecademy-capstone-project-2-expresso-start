@@ -1,5 +1,6 @@
 const express = require('express');
 const sqlite3 = require('sqlite3');
+const timesheetsRouter = require('./timesheets');
 
 const db = new sqlite3.Database(process.env.TEST_DATABASE || './db.sqlite');
 const employeesRouter = express.Router();
@@ -19,6 +20,7 @@ employeesRouter.param('employeeId', (req, res, next, employeeId) => {
   });
 });
 
+employeesRouter.use('/:employeeId/timesheets', timesheetsRouter);
 
 //
 // Routes
