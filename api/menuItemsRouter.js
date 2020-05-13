@@ -7,6 +7,16 @@ const menuItemsRouter = express.Router({mergeParams: true});
 //
 // Middleware
 //
+menuItemsRouter.param('menuItemId', (req, res, next, menuItemId) => {
+  db.get('SELECT * FROM MenuItem WHERE id = $id', {$id: menuItemId}, (err, row) => {
+    if (err) return next(err);
+    if (!row) {
+      return res.status(404).send();
+    }
+    next();
+  });
+})
+
 
 // GET /api/menus/:menuId/menu-items
 menuItemsRouter.get('/', (req, res, next) => {
@@ -41,6 +51,42 @@ menuItemsRouter.post('/', (req, res, next) => {
       if (err) return next(err);
       res.status(201).send({menuItem: row});
     });
+  });
+});
+
+// PUT /api/menus/:menuId/menu-items/:menuItemId
+menuItemsRouter.put('/:menuItemId', (req, res, next) => {
+  const {name, description, inventory, price} = req.body.menuItem;
+  const menuItemId = req.params.menuItemId;
+
+  if (!name || !inventory || !price) {
+    return res.status(400).send();
+  }
+
+  const sqlQuery = 'UPDATE MenuItem SET name = $name, description = $description, inventory = $inventory, price = $price WHERE id = $menuItemId';
+  const params = {
+    $name: name,
+    $description: description,
+    $inventory: inventory,
+    $price: price,
+    $menuItemId: menuItemId
+  };
+
+  db.run(sqlQuery, params, function(err) {
+    if (err) return next(err);
+    db.get('SELECT * FROM MenuItem WHERE id = $id', {$id: menuItemId}, (err, row) => {
+      if (err) return next(err);
+      res.status(200).send({menuItem: row});
+    });
+  });
+});
+
+// DELETE /api/menus/:menuId/menu-items/:menuItemId
+menuItemsRouter.delete('/:menuItemId', (req, res, next) => {
+  const menuItemId = req.params.menuItemId;
+  db.run('DELETE FROM MenuItem WHERE id = $menuItemId', {$menuItemId: menuItemId}, function(err) {
+    if (err) return next(err);
+    res.status(204).send();
   });
 });
 
