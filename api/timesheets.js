@@ -72,4 +72,14 @@ timesheetsRouter.put('/:timesheetId', (req, res, next) => {
   })
 });
 
+// DELETE /api/employees/:employeeId/timesheets/:timesheetId
+timesheetsRouter.delete('/:timesheetId', (req, res, next) => {
+  const timesheetId = req.params.timesheetId;
+  db.run('DELETE FROM Timesheet WHERE id = $timesheetId', {$timesheetId: timesheetId}, function(err) {
+    if (err) return next(err);
+    res.status(204).send();
+  });
+});
+
+
 module.exports = timesheetsRouter;
